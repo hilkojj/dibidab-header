@@ -1,0 +1,20 @@
+#include <dibidab_struct.h>
+
+namespace dibidab_struct_info_{{ input_name }}
+{
+
+{% for struct in structs %}
+dibidab::struct_info STRUCT_INFO_{{ struct.name }} {
+    "{{ struct.id }}",
+    nullptr
+};
+{% endfor %}
+
+void registerDibidabStructs()
+{
+    {% for struct in structs %}
+    dibidab::registerStructInfo(STRUCT_INFO_{{ struct.name }});
+    {% endfor %}
+}
+
+}

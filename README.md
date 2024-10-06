@@ -2,11 +2,11 @@
 ### Dependencies
 
 Tested with python 3.10.
-Install python dependencies with `pip install -r requirements.txt`
+Install python dependencies with `pip install -r tool/requirements.txt`
 
 ### Usage
 
-`python src/dibidab_header.py examples/example.didibab.h`
+`python tool/src/dibidab_header.py <input-header>`
 
 ### Examples
 
