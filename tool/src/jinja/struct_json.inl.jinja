@@ -1,0 +1,30 @@
+{% for struct in structs %}
+{% for namespace_id in struct.namespaces %}namespace {{ namespace_id }}
+{
+{% endfor %}
+struct {{ struct.id_namespaceless }};
+
+void to_json_object(json &json, const {{ struct.id }} &value);
+void to_json_array(json &json, const {{ struct.id }} &value);
+void from_json_object(const json &json, {{ struct.id }} &value);
+void from_json_array(const json &json, {{ struct.id }} &value);
+void from_json_object_or_array(const json &json, {{ struct.id }} &value);
+
+static void to_json(json &json, const {{ struct.id }} &value)
+{
+{% if struct.json_method == "object" %}
+    to_json_object(json, value);
+{% elif struct.json_method == "array" %}
+    to_json_array(json, value);
+{% else %}
+    #error Unrecognized json method "{{ struct.json_method }}"
+{% endif %}
+}
+
+static void from_json(const json &json, {{ struct.id }} &value)
+{
+    from_json_object_or_array(json, value);
+}
+{% for namespace_id in struct.namespaces %}}
+{% endfor %}
+{% endfor %}

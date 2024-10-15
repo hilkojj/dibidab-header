@@ -1,5 +1,4 @@
-#ifndef DIBIDAB_HEADER_H
-#define DIBIDAB_HEADER_H
+#pragma once
 
 /**
  * Choose the default method for converting between C++ and Json.
@@ -18,5 +17,3 @@
  * Generate code for using this struct as a component.
  */
 #define dibidab_component
-
-#endif

@@ -14,10 +14,12 @@ function(process_dibidab_headers source_dir out_dir registry_namespace target)
     foreach(header_file ${header_files})
         get_filename_component(file_name ${header_file} NAME_WE)
         set(struct_info_file ${out_dir}/${file_name}.struct_info.inl)
+        set(struct_json_file ${out_dir}/${file_name}.struct_json.inl)
+        set(struct_json_cpp_file ${out_dir}/${file_name}.struct_json.cpp.inl)
 
         # Run Header Tool during build every time header is changed:
         add_custom_command(
-            OUTPUT ${struct_info_file}
+            OUTPUT ${struct_info_file} ${struct_json_file} ${struct_json_cpp_file}
             COMMAND ${HEADER_COMMAND} ${header_file} ${out_dir}
             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
             DEPENDS ${header_file}

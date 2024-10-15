@@ -1,3 +1,4 @@
+#pragma once
 
 #include <dibidab_header.h>
 
@@ -8,7 +9,7 @@ struct NonExistentStruct;
 
 struct Person
 {
-    dibidab_component;
+  dibidab_component;
 
   dibidab_expose(lua, json);
     std::string name;
@@ -25,7 +26,7 @@ namespace AnotherSpace
 {
     struct Yes
     {
-        dibidab_json_method(object);
+      dibidab_json_method(object);
 
       dibidab_expose(lua, json);
         int b;

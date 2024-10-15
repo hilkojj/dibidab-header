@@ -1,0 +1,52 @@
+#include "{{ original_header_rel_path }}"
+{% import "macros/lua_user_type.jinja" as lua_user_type %}
+{% import "macros/component_utils.jinja" as component_utils %}
+namespace dibidab_struct_info_{{ input_name }}
+{
+{% for struct in structs %}{% if struct.any_exposed_to_lua %}{{ lua_user_type.renderFunction(struct) }}{% endif %}{% endfor %}
+
+{% for struct in structs %}
+dibidab::struct_info STRUCT_INFO_{{ struct.name }} {
+    "{{ struct.id }}",
+    {% if struct.any_exposed_to_lua %}&{{ lua_user_type.functionName(struct) }},{% else %}nullptr,{% endif %}
+};
+{% if struct.is_component %}
+{{ component_utils.hasComponent(struct) }}
+{{ component_utils.addComponent(struct) }}
+{{ component_utils.removeComponent(struct) }}
+
+{{ component_utils.createObserver(struct) }}
+
+{{ component_utils.getDefaultJsonObject(struct) }}
+{{ component_utils.getJsonObject(struct) }}
+{{ component_utils.getJsonArray(struct) }}
+{{ component_utils.setFromJson(struct) }}
+
+{{ component_utils.setFromLua(struct) }}
+{{ component_utils.fillLuaUtilsTable(struct) }}
+
+dibidab::component_info COMPONENT_INFO_{{ struct.name }} {
+    "{{ struct.name }}",
+    "{{ struct.id }}",
+    {{ component_utils.hasComponent_function_name(struct) }},
+    {{ component_utils.addComponent_function_name(struct) }},
+    {{ component_utils.removeComponent_function_name(struct) }},
+
+    {{ component_utils.createObserver_function_name(struct) }},
+
+    {{ component_utils.getDefaultJsonObject_function_name(struct) }},
+    {{ component_utils.getJsonObject_function_name(struct) }},
+    {{ component_utils.getJsonArray_function_name(struct) }},
+    {{ component_utils.setFromJson_function_name(struct) }},
+
+    {{ component_utils.setFromLua_function_name(struct) }},
+    {{ component_utils.fillLuaUtilsTable_function_name(struct) }},
+};
+{% endif %}{% endfor %}
+void registerDibidabStructs()
+{
+    {% for struct in structs %}
+    dibidab::registerStructInfo(STRUCT_INFO_{{ struct.name }});
+    {% endfor %}
+}
+}

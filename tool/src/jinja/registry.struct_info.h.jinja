@@ -1,0 +1,24 @@
+#pragma once
+
+#include "registry.struct_json.h"
+
+#include <dibidab/struct.h>
+#include <dibidab/component.h>
+#include <ecs/EntityObserver.h>
+
+#include <sol/sol.hpp>
+#include <json.hpp>
+#include <entt/core/hashed_string.hpp>
+#include <entt/entity/registry.hpp>
+
+{% for struct_info_name in struct_info_file_names %}#include "{{ struct_info_name }}.struct_info.inl"
+{% endfor %}
+namespace {{ registry_namespace }}
+{
+void registerStructs()
+{
+    {% for struct_info_name in struct_info_file_names %}dibidab_struct_info_{{ struct_info_name }}::registerDibidabStructs();
+    {% endfor %}
+}
+
+}

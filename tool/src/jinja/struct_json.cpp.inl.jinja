@@ -1,0 +1,58 @@
+
+#include "{{ original_header_rel_path }}"
+
+{% for struct in structs %}
+{% for namespace_id in struct.namespaces %}namespace {{ namespace_id }}
+{
+{% endfor %}
+
+void to_json_object(json &json, const {{ struct.id }} &value)
+{
+    json = { {% for var in struct.variables %}
+        { "{{ var.name }}", value.{{ var.name }} },{% endfor %}
+    };
+}
+
+void to_json_array(json &json, const {{ struct.id }} &value)
+{
+    json = { {% for var in struct.variables %}
+        value.{{ var.name }},{% endfor %}
+    };
+}
+
+void from_json_object(const json &json, {{ struct.id }} &value)
+{
+{% for var in struct.variables %}
+    {% if loop.index0 == 0 %}auto {% endif %}it = json.find("{{ var.name }}");
+    if (it != json.end())
+    {
+        value.{{ var.name }} = it->get<{{ var.type }}>();
+    }
+{% endfor %}
+}
+
+void from_json_array(const json &json, {{ struct.id }} &value)
+{
+    const size_t json_size = json.size();
+{% for var in struct.variables %}
+    if ({{ loop.index0 }} < json_size)
+    {
+        value.{{ var.name }} = json.at({{ loop.index0 }}).get<{{ var.type }}>();
+    }{% endfor %}
+}
+
+void from_json_object_or_array(const json &json, {{ struct.id }} &value)
+{
+    if (json.is_array())
+    {
+        from_json_array(json, value);
+    }
+    else if (json.is_object())
+    {
+        from_json_object(json, value);
+    }
+}
+
+{% for namespace_id in struct.namespaces %}}
+{% endfor %}
+{% endfor %}

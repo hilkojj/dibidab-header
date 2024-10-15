@@ -1,0 +1,117 @@
+{% import "macros/lua_user_type.jinja" as lua_user_type %}
+
+
+{% macro hasComponent_function_name(struct) %}hasComponent_{{ struct.name }}{% endmacro %}
+
+{% macro hasComponent(struct) %}
+bool {{ hasComponent_function_name(struct) }}(const entt::entity e, const entt::registry &reg)
+{
+    return reg.has<{{ struct.id }}>(e);
+}{% endmacro %}
+
+
+
+{% macro addComponent_function_name(struct) %}addComponent_{{ struct.name }}{% endmacro %}
+
+{% macro addComponent(struct) %}
+void {{ addComponent_function_name(struct) }}(const entt::entity e, entt::registry &reg)
+{
+    reg.get_or_assign<{{ struct.id }}>(e);
+}{% endmacro %}
+
+
+
+{% macro removeComponent_function_name(struct) %}removeComponent_{{ struct.name }}{% endmacro %}
+
+{% macro removeComponent(struct) %}
+void {{ removeComponent_function_name(struct) }}(const entt::entity e, entt::registry &reg)
+{
+    reg.remove_if_exists<{{ struct.id }}>(e);
+}{% endmacro %}
+
+
+
+{% macro createObserver_function_name(struct) %}createObserver_{{ struct.name }}{% endmacro %}
+
+{% macro createObserver(struct) %}
+EntityObserver {{ createObserver_function_name(struct) }}(entt::registry &reg)
+{
+    return EntityObserver(std::in_place_type_t<{{ struct.id }}>(), reg);
+}{% endmacro %}
+
+
+
+{% macro getDefaultJsonObject_function_name(struct) %}getDefaultJsonObject_{{ struct.name }}{% endmacro %}
+
+{% macro getDefaultJsonObject(struct) %}
+json {{ getDefaultJsonObject_function_name(struct) }}()
+{
+    return {{ struct.id }} {};
+}{% endmacro %}
+
+
+
+{% macro getJsonObject_function_name(struct) %}getJsonObject_{{ struct.name }}{% endmacro %}
+
+{% macro getJsonObject(struct) %}
+void {{ getJsonObject_function_name(struct) }}(const entt::entity e, const entt::registry &reg, json &outObject)
+{
+    to_json_object(outObject, reg.get<{{ struct.id }}>(e));
+}{% endmacro %}
+
+
+
+{% macro getJsonArray_function_name(struct) %}getJsonArray_{{ struct.name }}{% endmacro %}
+
+{% macro getJsonArray(struct) %}
+void {{ getJsonArray_function_name(struct) }}(const entt::entity e, const entt::registry &reg, json &outArray)
+{
+    to_json_array(outArray, reg.get<{{ struct.id }}>(e));
+}{% endmacro %}
+
+
+
+{% macro setFromJson_function_name(struct) %}setFromJson_{{ struct.name }}{% endmacro %}
+
+{% macro setFromJson(struct) %}
+void {{ setFromJson_function_name(struct) }}(const json &objectOrArray, const entt::entity e, entt::registry &reg)
+{
+    const {{ struct.id }} value = objectOrArray;
+    reg.assign_or_replace<{{ struct.id }}>(e, value);
+}{% endmacro %}
+
+
+
+{% macro setFromLua_function_name(struct) %}setFromLua_{{ struct.name }}{% endmacro %}
+
+{% macro setFromLua(struct) %}
+void {{ setFromLua_function_name(struct) }}(const sol::table &table, const entt::entity e, entt::registry &reg)
+{
+    reg.assign_or_replace<{{ struct.id }}>(e, {{ lua_user_type.fromTableFunctionName(struct) }}(table));
+}{% endmacro %}
+
+
+
+{% macro fillLuaUtilsTable_function_name(struct) %}fillLuaUtilsTable_{{ struct.name }}{% endmacro %}
+
+{% macro fillLuaUtilsTable(struct) %}
+void {{ fillLuaUtilsTable_function_name(struct) }}(sol::table &table, entt::registry &reg)
+{
+    table["getFor"] = [&reg] (entt::entity entity) -> {{ struct.id }} *
+    {
+        return &reg.get_or_assign<{{ struct.id }}>(entity);
+    };
+    table["tryGetFor"] = [&reg] (entt::entity entity) -> {{ struct.id }} *
+    {
+        return reg.try_get<{{ struct.id }}>(entity);
+    };
+    table["has"] = [&reg] (entt::entity entity) -> bool
+    {
+        return reg.has<{{ struct.id }}>(entity);
+    };
+    table["remove"] = [&reg] (entt::entity entity)
+    {
+        return reg.remove_if_exists<{{ struct.id }}>(entity);
+    };
+}{% endmacro %}
+
