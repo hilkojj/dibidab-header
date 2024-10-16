@@ -6,7 +6,7 @@ set(REGISTRY_COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/src/dibidab
 
 execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install --user -r ${CMAKE_CURRENT_LIST_DIR}/requirements.txt)
 
-function(process_dibidab_headers source_dir out_dir registry_namespace target)
+function(process_dibidab_headers source_dir out_dir registry_namespace)
     file(MAKE_DIRECTORY ${out_dir})
 
     # Headers:
