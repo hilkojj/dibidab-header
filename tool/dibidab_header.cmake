@@ -10,7 +10,7 @@ function(process_dibidab_headers source_dir out_dir registry_namespace)
     file(MAKE_DIRECTORY ${out_dir})
 
     # Headers:
-    file(GLOB header_files ${source_dir}/**/*.dibidab.h)
+    file(GLOB_RECURSE header_files ${source_dir}/**/*.dibidab.h)
     foreach(header_file ${header_files})
         get_filename_component(file_name ${header_file} NAME_WE)
         set(struct_info_file ${out_dir}/${file_name}.struct_info.inl)

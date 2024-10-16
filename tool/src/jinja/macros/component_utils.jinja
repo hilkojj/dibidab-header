@@ -97,6 +97,7 @@ void {{ setFromLua_function_name(struct) }}(const sol::table &table, const entt:
 {% macro fillLuaUtilsTable(struct) %}
 void {{ fillLuaUtilsTable_function_name(struct) }}(sol::table &table, entt::registry &reg)
 {
+{% if struct.variables %}
     table["getFor"] = [&reg] (entt::entity entity) -> {{ struct.id }} *
     {
         return &reg.get_or_assign<{{ struct.id }}>(entity);
@@ -105,6 +106,7 @@ void {{ fillLuaUtilsTable_function_name(struct) }}(sol::table &table, entt::regi
     {
         return reg.try_get<{{ struct.id }}>(entity);
     };
+{% endif %}
     table["has"] = [&reg] (entt::entity entity) -> bool
     {
         return reg.has<{{ struct.id }}>(entity);

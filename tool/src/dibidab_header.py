@@ -123,7 +123,6 @@ def loop_over_namespace(namespace: NamespaceWrapper):
         loop_over_namespace(NamespaceWrapper(child_space, namespace))
 
     for struct in namespace.current.classes:
-        print(format_struct_id(struct, namespace))
         struct_render_info.append(get_struct_render_info(struct, namespace))
 
 

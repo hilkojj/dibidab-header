@@ -22,7 +22,9 @@ dibidab::struct_info STRUCT_INFO_{{ struct.name }} {
 {{ component_utils.getJsonArray(struct) }}
 {{ component_utils.setFromJson(struct) }}
 
+{% if struct.any_exposed_to_lua %}
 {{ component_utils.setFromLua(struct) }}
+{% endif %}
 {{ component_utils.fillLuaUtilsTable(struct) }}
 
 dibidab::component_info COMPONENT_INFO_{{ struct.name }} {
@@ -39,7 +41,7 @@ dibidab::component_info COMPONENT_INFO_{{ struct.name }} {
     {{ component_utils.getJsonArray_function_name(struct) }},
     {{ component_utils.setFromJson_function_name(struct) }},
 
-    {{ component_utils.setFromLua_function_name(struct) }},
+    {% if struct.any_exposed_to_lua %}{{ component_utils.setFromLua_function_name(struct) }}{% else %}nullptr{% endif %},
     {{ component_utils.fillLuaUtilsTable_function_name(struct) }},
 };
 {% endif %}{% endfor %}
