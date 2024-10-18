@@ -1,13 +1,13 @@
 
-{% macro functionName(struct) %}registerLuaUserType_{{ struct.name }}{% endmacro %}
+{% macro registerLuaUserTypeFunctionName(struct) %}registerLuaUserType_{{ struct.name }}{% endmacro %}
 
 {% macro fromTableFunctionName(struct) %}{{ struct.name }}_fromLuaTable{% endmacro %}
 
-{% macro renderFunction(struct) %}
+{% macro render(struct) %}
 {{ struct.id }} {{ fromTableFunctionName(struct) }}(const sol::table &table)
 {
     {{ struct.id }} result {};
-    for (const auto &[key, value] : table)
+    {% if struct.any_exposed_to_lua %}for (const auto &[key, value] : table)
     {
         switch (entt::hashed_string { key.as<const char *>() })
         {
@@ -18,11 +18,11 @@
             default:
                 break;
         }
-    }
+    }{% endif %}
     return result;
 }
 
-void {{ functionName(struct) }}(sol::state &luaState)
+void {{ registerLuaUserTypeFunctionName(struct) }}(sol::state &luaState)
 {
     auto userType = luaState.new_usertype<{{ struct.id }}>(
         "{{ struct.name }}",

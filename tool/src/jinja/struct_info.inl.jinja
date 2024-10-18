@@ -3,12 +3,12 @@
 {% import "macros/component_utils.jinja" as component_utils %}
 namespace dibidab_struct_info_{{ input_name }}
 {
-{% for struct in structs %}{% if struct.any_exposed_to_lua %}{{ lua_user_type.renderFunction(struct) }}{% endif %}{% endfor %}
+{% for struct in structs %}{% if struct.generate_lua_user_type %}{{ lua_user_type.render(struct) }}{% endif %}{% endfor %}
 
 {% for struct in structs %}
 dibidab::struct_info STRUCT_INFO_{{ struct.name }} {
     "{{ struct.id }}",
-    {% if struct.any_exposed_to_lua %}&{{ lua_user_type.functionName(struct) }},{% else %}nullptr,{% endif %}
+    {% if struct.generate_lua_user_type %}&{{ lua_user_type.registerLuaUserTypeFunctionName(struct) }},{% else %}nullptr,{% endif %}
 };
 {% if struct.is_component %}
 {{ component_utils.hasComponent(struct) }}
@@ -22,9 +22,7 @@ dibidab::struct_info STRUCT_INFO_{{ struct.name }} {
 {{ component_utils.getJsonArray(struct) }}
 {{ component_utils.setFromJson(struct) }}
 
-{% if struct.any_exposed_to_lua %}
 {{ component_utils.setFromLua(struct) }}
-{% endif %}
 {{ component_utils.fillLuaUtilsTable(struct) }}
 
 dibidab::component_info COMPONENT_INFO_{{ struct.name }} {
@@ -41,7 +39,7 @@ dibidab::component_info COMPONENT_INFO_{{ struct.name }} {
     {{ component_utils.getJsonArray_function_name(struct) }},
     {{ component_utils.setFromJson_function_name(struct) }},
 
-    {% if struct.any_exposed_to_lua %}{{ component_utils.setFromLua_function_name(struct) }}{% else %}nullptr{% endif %},
+    {{ component_utils.setFromLua_function_name(struct) }},
     {{ component_utils.fillLuaUtilsTable_function_name(struct) }},
 };
 {% endif %}{% endfor %}
@@ -49,6 +47,7 @@ void registerDibidabStructs()
 {
     {% for struct in structs %}
     dibidab::registerStructInfo(STRUCT_INFO_{{ struct.name }});
+    {% if struct.is_component %}dibidab::registerComponentInfo(COMPONENT_INFO_{{ struct.name }});{% endif %}
     {% endfor %}
 }
 }

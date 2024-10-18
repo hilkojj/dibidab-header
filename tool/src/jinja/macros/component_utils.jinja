@@ -34,9 +34,9 @@ void {{ removeComponent_function_name(struct) }}(const entt::entity e, entt::reg
 {% macro createObserver_function_name(struct) %}createObserver_{{ struct.name }}{% endmacro %}
 
 {% macro createObserver(struct) %}
-EntityObserver {{ createObserver_function_name(struct) }}(entt::registry &reg)
+EntityObserver *{{ createObserver_function_name(struct) }}(entt::registry &reg)
 {
-    return EntityObserver(std::in_place_type_t<{{ struct.id }}>(), reg);
+    return new EntityObserver(std::in_place_type_t<{{ struct.id }}>(), reg);
 }{% endmacro %}
 
 
@@ -95,18 +95,17 @@ void {{ setFromLua_function_name(struct) }}(const sol::table &table, const entt:
 {% macro fillLuaUtilsTable_function_name(struct) %}fillLuaUtilsTable_{{ struct.name }}{% endmacro %}
 
 {% macro fillLuaUtilsTable(struct) %}
-void {{ fillLuaUtilsTable_function_name(struct) }}(sol::table &table, entt::registry &reg)
+void {{ fillLuaUtilsTable_function_name(struct) }}(sol::table &table, entt::registry &reg, const dibidab::component_info *info)
 {
-{% if struct.variables %}
-    table["getFor"] = [&reg] (entt::entity entity) -> {{ struct.id }} *
+    table["info"] = info;
+    table["getFor"] = [&reg] (entt::entity entity){% if not struct.is_empty %} -> {{ struct.id }} *{% endif %}
     {
-        return &reg.get_or_assign<{{ struct.id }}>(entity);
+        {% if not struct.is_empty %}return &{% endif %}reg.get_or_assign<{{ struct.id }}>(entity);
     };
-    table["tryGetFor"] = [&reg] (entt::entity entity) -> {{ struct.id }} *
+    table["tryGetFor"] = [&reg] (entt::entity entity){% if not struct.is_empty %} -> {{ struct.id }} *{% endif %}
     {
-        return reg.try_get<{{ struct.id }}>(entity);
+        {% if not struct.is_empty %}return reg.try_get<{{ struct.id }}>(entity);{% endif %}
     };
-{% endif %}
     table["has"] = [&reg] (entt::entity entity) -> bool
     {
         return reg.has<{{ struct.id }}>(entity);

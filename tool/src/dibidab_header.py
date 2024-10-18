@@ -51,6 +51,7 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
     id = format_struct_id(struct, namespace)
     variables = []
     is_component = False
+    is_empty = True
     json_method = "array"
 
     json_exposing = False
@@ -79,10 +80,12 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
                 json_method = field.name.format().lower()
                 continue
 
-        if not json_exposing and not lua_exposing:
+        if field.name == None:
             continue
 
-        if field.name == None:
+        is_empty = False
+
+        if not json_exposing and not lua_exposing:
             continue
 
         # Pointers, Pointers to Pointers, Arrays are ignored.
@@ -99,6 +102,7 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
             "lua_exposed": lua_exposing
         })
 
+    any_exposed_to_lua = any([var["lua_exposed"] for var in variables])
     info = {
         # name is used in function/variable names.
         "name": name,
@@ -109,9 +113,12 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
         # namespaces leading to this type
         "namespaces": namespace.get_id_chain_list(),
         "is_component": is_component,
+        "is_empty": is_empty,
         "json_method": json_method,
-        "any_exposed_to_lua": any([var["lua_exposed"] for var in variables]),
+        "any_exposed_to_lua": any_exposed_to_lua,
         "any_exposed_to_json": any([var["json_exposed"] for var in variables]),
+        "generate_lua_user_type": any_exposed_to_lua or is_component,
+        # exposed variables:
         "variables": variables
     }
     return info
@@ -139,7 +146,11 @@ def render(file_type_name):
         input_name = input_name,
         original_header_rel_path = os.path.relpath(input_path, output_path)
     )
-    struct_file = open(output_path.joinpath(input_name + "." + file_type_name).absolute(), "w")
+    struct_file_path = output_path.joinpath(input_name + "." + file_type_name)
+    if struct_file_path.exists() and struct_file_path.read_text() == render_result:
+        # No need to save the same content again. Could trigger unnecessary recompilation.
+        return
+    struct_file = open(struct_file_path.absolute(), "w")
     struct_file.write(render_result)
     struct_file.close()
 
