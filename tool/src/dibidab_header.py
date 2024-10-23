@@ -144,7 +144,8 @@ def render(file_type_name):
     render_result = jinja_template.render(
         structs = struct_render_info,
         input_name = input_name,
-        original_header_rel_path = os.path.relpath(input_path, output_path)
+        original_header_rel_path = os.path.relpath(input_path, output_path),
+        category_path = os.path.relpath(input_path.parent, os.path.commonpath([input_path, output_path])).split("/")
     )
     struct_file_path = output_path.joinpath(input_name + "." + file_type_name)
     if struct_file_path.exists() and struct_file_path.read_text() == render_result:

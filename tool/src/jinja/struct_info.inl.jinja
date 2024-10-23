@@ -4,10 +4,16 @@
 namespace dibidab_struct_info_{{ input_name }}
 {
 {% for struct in structs %}{% if struct.generate_lua_user_type %}{{ lua_user_type.render(struct) }}{% endif %}{% endfor %}
+{% for struct in structs %}{{ component_utils.getDefaultJsonObject(struct) }}{% endfor %}
 
 {% for struct in structs %}
 dibidab::struct_info STRUCT_INFO_{{ struct.name }} {
     "{{ struct.id }}",
+    {
+        {% for variable in struct.variables %}{ "{{ variable.name }}", "{{ variable.type }}", {% if variable.lua_exposed %}true{% else %}false{% endif %}, {% if variable.json_exposed %}true{% else %}false{% endif %} },
+        {% endfor %}
+    },
+    {{ component_utils.getDefaultJsonObject_function_name(struct) }},
     {% if struct.generate_lua_user_type %}&{{ lua_user_type.registerLuaUserTypeFunctionName(struct) }},{% else %}nullptr,{% endif %}
 };
 {% if struct.is_component %}
@@ -17,7 +23,6 @@ dibidab::struct_info STRUCT_INFO_{{ struct.name }} {
 
 {{ component_utils.createObserver(struct) }}
 
-{{ component_utils.getDefaultJsonObject(struct) }}
 {{ component_utils.getJsonObject(struct) }}
 {{ component_utils.getJsonArray(struct) }}
 {{ component_utils.setFromJson(struct) }}
@@ -28,13 +33,15 @@ dibidab::struct_info STRUCT_INFO_{{ struct.name }} {
 dibidab::component_info COMPONENT_INFO_{{ struct.name }} {
     "{{ struct.name }}",
     "{{ struct.id }}",
+    {
+        {% for directory in category_path %}"{{ directory }}",{% endfor %}
+    },
     {{ component_utils.hasComponent_function_name(struct) }},
     {{ component_utils.addComponent_function_name(struct) }},
     {{ component_utils.removeComponent_function_name(struct) }},
 
     {{ component_utils.createObserver_function_name(struct) }},
 
-    {{ component_utils.getDefaultJsonObject_function_name(struct) }},
     {{ component_utils.getJsonObject_function_name(struct) }},
     {{ component_utils.getJsonArray_function_name(struct) }},
     {{ component_utils.setFromJson_function_name(struct) }},
