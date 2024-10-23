@@ -95,7 +95,7 @@ void {{ setFromLua_function_name(struct) }}(const sol::table &table, const entt:
 {% macro fillLuaUtilsTable_function_name(struct) %}fillLuaUtilsTable_{{ struct.name }}{% endmacro %}
 
 {% macro fillLuaUtilsTable(struct) %}
-void {{ fillLuaUtilsTable_function_name(struct) }}(sol::table &table, entt::registry &reg, const dibidab::component_info *info)
+void {{ fillLuaUtilsTable_function_name(struct) }}(sol::table &table, entt::registry &reg, const dibidab::ComponentInfo *info)
 {
     table["info"] = info;
     table["getFor"] = [&reg] (entt::entity entity){% if not struct.is_empty %} -> {{ struct.id }} *{% endif %}
