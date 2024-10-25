@@ -13,7 +13,7 @@
         {
             {% for variable in struct.variables %}{% if variable.lua_exposed %}
             case "{{ variable.name }}"_hs:
-                result.{{ variable.name }} = value.as<{{ variable.type }}>();
+                result.{{ variable.name }} = value.as<decltype({{ struct.id }}::{{ variable.name }})>();
                 break;{%endif%}{% endfor %}
             default:
                 break;
