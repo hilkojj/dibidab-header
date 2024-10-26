@@ -6,6 +6,10 @@
 {% macro render(struct) %}
 {{ struct.id }} {{ fromTableFunctionName(struct) }}(const sol::table &table)
 {
+    if (table.is<{{ struct.id }}>())
+    {
+        return table.as<{{ struct.id }}>();
+    }
     {{ struct.id }} result {};
     {% if struct.any_exposed_to_lua %}for (const auto &[key, value] : table)
     {
