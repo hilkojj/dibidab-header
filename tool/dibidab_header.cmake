@@ -1,5 +1,5 @@
 
-find_package(Python COMPONENTS Interpreter)
+find_package(Python3 REQUIRED Interpreter)
 
 set(HEADER_COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/src/dibidab_header.py)
 set(REGISTRY_COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/src/dibidab_registry.py)
