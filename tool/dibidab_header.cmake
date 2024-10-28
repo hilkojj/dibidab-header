@@ -13,9 +13,9 @@ function(process_dibidab_headers source_dir out_dir registry_namespace)
     file(GLOB_RECURSE header_files ${source_dir}/**/*.dibidab.h)
     foreach(header_file ${header_files})
         get_filename_component(file_name ${header_file} NAME_WE)
-        set(struct_info_file ${out_dir}/${file_name}.struct_info.inl)
-        set(struct_json_file ${out_dir}/${file_name}.struct_json.inl)
-        set(struct_json_cpp_file ${out_dir}/${file_name}.struct_json.cpp.inl)
+        set(struct_info_file ${out_dir}/${file_name}.info.cpp)
+        set(struct_json_file ${out_dir}/${file_name}.json.inl)
+        set(struct_json_cpp_file ${out_dir}/${file_name}.json.cpp.inl)
 
         # Run Header Tool during build every time header is changed:
         add_custom_command(

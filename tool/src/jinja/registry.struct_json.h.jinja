@@ -2,5 +2,5 @@
 
 #include <json_fwd.hpp>
 
-{% for struct_info_name in struct_info_file_names %}#include "{{ struct_info_name }}.struct_json.inl"
+{% for struct_info_name in struct_info_file_names %}#include "{{ struct_info_name }}.json.inl"
 {% endfor %}

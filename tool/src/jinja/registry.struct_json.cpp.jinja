@@ -4,5 +4,5 @@
 
 #include <json.hpp>
 
-{% for struct_info_name in struct_info_file_names %}#include "{{ struct_info_name }}.struct_json.cpp.inl"
+{% for struct_info_name in struct_info_file_names %}#include "{{ struct_info_name }}.json.cpp.inl"
 {% endfor %}

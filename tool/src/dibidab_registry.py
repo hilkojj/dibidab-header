@@ -14,7 +14,7 @@ struct_info_file_names = [
     file.split(".")[0]
     for file in os.listdir(output_path)
     if os.path.isfile(output_path.joinpath(file))
-    and file.endswith(".struct_info.inl")
+    and file.endswith(".info.cpp")
 ]
 
 def render(file_type_name):

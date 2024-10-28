@@ -155,7 +155,7 @@ def render(file_type_name):
     struct_file.write(render_result)
     struct_file.close()
 
-render("struct_info.inl")
-render("struct_json.inl")
-render("struct_json.cpp.inl")
+render("info.cpp")
+render("json.inl")
+render("json.cpp.inl")
 ######

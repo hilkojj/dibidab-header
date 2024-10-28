@@ -1,24 +1,12 @@
 #pragma once
 
-#include "registry.struct_json.h"
-
-#include <reflection/StructInfo.h>
-#include <reflection/ComponentInfo.h>
-#include <lua/lua_converters.h>
-#include <ecs/Observer.h>
-
-#include <sol/sol.hpp>
-#include <json.hpp>
-#include <entt/core/hashed_string.hpp>
-#include <entt/entity/registry.hpp>
-
-{% for struct_info_name in struct_info_file_names %}#include "{{ struct_info_name }}.struct_info.inl"
+{% for struct_info_name in struct_info_file_names %}void {{ struct_info_name }}_registerDibidabStructs();
 {% endfor %}
 namespace {{ registry_namespace }}
 {
 void registerStructs()
 {
-    {% for struct_info_name in struct_info_file_names %}dibidab_struct_info_{{ struct_info_name }}::registerDibidabStructs();
+    {% for struct_info_name in struct_info_file_names %}{{ struct_info_name }}_registerDibidabStructs();
     {% endfor %}
 }
 

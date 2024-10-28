@@ -1,4 +1,17 @@
 #include "{{ original_header_rel_path }}"
+
+#include "registry.struct_json.h"
+
+#include <reflection/StructInfo.h>
+#include <reflection/ComponentInfo.h>
+#include <lua/lua_converters.h>
+#include <ecs/Observer.h>
+
+#include <sol/sol.hpp>
+#include <json.hpp>
+#include <entt/core/hashed_string.hpp>
+#include <entt/entity/registry.hpp>
+
 {% import "macros/lua_user_type.jinja" as lua_user_type %}
 {% import "macros/component_utils.jinja" as component_utils %}
 namespace dibidab_struct_info_{{ input_name }}
@@ -21,7 +34,8 @@ namespace dibidab_struct_info_{{ input_name }}
 {{ component_utils.setFromLua(struct) }}
 {{ component_utils.fillLuaUtilsTable(struct) }}
 
-dibidab::ComponentInfo COMPONENT_INFO_{{ struct.name }} {
+dibidab::ComponentInfo COMPONENT_INFO_{{ struct.name }}
+{
     "{{ struct.name }}",
     "{{ struct.id }}",
     {
@@ -41,7 +55,8 @@ dibidab::ComponentInfo COMPONENT_INFO_{{ struct.name }} {
     {{ component_utils.fillLuaUtilsTable_function_name(struct) }},
 };
 {% endif %}
-dibidab::StructInfo STRUCT_INFO_{{ struct.name }} {
+dibidab::StructInfo STRUCT_INFO_{{ struct.name }}
+{
     "{{ struct.id }}",
     {% if struct.is_component %}&COMPONENT_INFO_{{ struct.name }}{% else %}nullptr{% endif %},
     {
@@ -52,11 +67,12 @@ dibidab::StructInfo STRUCT_INFO_{{ struct.name }} {
     {% if struct.generate_lua_user_type %}&{{ lua_user_type.registerLuaUserTypeFunctionName(struct) }},{% else %}nullptr,{% endif %}
 };{% endfor %}
 
-void registerDibidabStructs()
+}
+
+void {{ input_name }}_registerDibidabStructs()
 {
     {% for struct in structs %}
-    dibidab::registerStructInfo(STRUCT_INFO_{{ struct.name }});
-    {% if struct.is_component %}dibidab::registerComponentInfo(COMPONENT_INFO_{{ struct.name }});{% endif %}
+    dibidab::registerStructInfo(dibidab_struct_info_{{ input_name }}::STRUCT_INFO_{{ struct.name }});
+    {% if struct.is_component %}dibidab::registerComponentInfo(dibidab_struct_info_{{ input_name }}::COMPONENT_INFO_{{ struct.name }});{% endif %}
     {% endfor %}
-}
 }
