@@ -137,6 +137,10 @@ loop_over_namespace(NamespaceWrapper(parsed_input.namespace, None))
 
 input_name = input_path.name.split(".")[0]
 
+any_struct_exposed_to_json = any([struct["any_exposed_to_json"] for struct in struct_render_info])
+any_struct_exposed_to_lua = any([struct["generate_lua_user_type"] for struct in struct_render_info])
+any_struct_is_component = any([struct["is_component"] for struct in struct_render_info])
+
 ### Render ###
 def render(file_type_name):
     jinja_template = dibidab_jinja.jinja_env.get_template(file_type_name + ".jinja")
@@ -145,7 +149,10 @@ def render(file_type_name):
         structs = struct_render_info,
         input_name = input_name,
         original_header_rel_path = os.path.relpath(input_path, output_path),
-        category_path = os.path.relpath(input_path.parent, os.path.commonpath([input_path, output_path])).split("/")
+        category_path = os.path.relpath(input_path.parent, os.path.commonpath([input_path, output_path])).split("/"),
+        any_struct_exposed_to_json = any_struct_exposed_to_json,
+        any_struct_exposed_to_lua = any_struct_exposed_to_lua,
+        any_struct_is_component = any_struct_is_component
     )
     struct_file_path = output_path.joinpath(input_name + "." + file_type_name)
     if struct_file_path.exists() and struct_file_path.read_text() == render_result:
@@ -156,6 +163,7 @@ def render(file_type_name):
     struct_file.close()
 
 render("info.cpp")
-render("json.inl")
-render("json.cpp.inl")
+if any_struct_exposed_to_json:
+    render("json.inl")
+    render("json.cpp.inl")
 ######

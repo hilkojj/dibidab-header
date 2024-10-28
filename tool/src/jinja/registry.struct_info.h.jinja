@@ -1,12 +1,12 @@
 #pragma once
 
-{% for struct_info_name in struct_info_file_names %}void {{ struct_info_name }}_registerDibidabStructs();
+{% for struct_info_name in found_file_names %}void {{ struct_info_name }}_registerDibidabStructs();
 {% endfor %}
 namespace {{ registry_namespace }}
 {
 void registerStructs()
 {
-    {% for struct_info_name in struct_info_file_names %}{{ struct_info_name }}_registerDibidabStructs();
+    {% for struct_info_name in found_file_names %}{{ struct_info_name }}_registerDibidabStructs();
     {% endfor %}
 }
 

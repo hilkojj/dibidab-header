@@ -1,24 +1,25 @@
-#include "{{ original_header_rel_path }}"
-
-#include "registry.struct_json.h"
-
+{% if any_struct_exposed_to_json or any_struct_exposed_to_lua %}#include "{{ original_header_rel_path }}"{% endif %}
 #include <reflection/StructInfo.h>
-#include <reflection/ComponentInfo.h>
-#include <lua/lua_converters.h>
-#include <ecs/Observer.h>
-
-#include <sol/sol.hpp>
+{%if any_struct_exposed_to_json %}
+#include "registry.struct_json.h"
 #include <json.hpp>
+{% endif %}
+{% if any_struct_exposed_to_lua %}
+#include <sol/sol.hpp>
+#include <lua/lua_converters.h>
 #include <entt/core/hashed_string.hpp>
+{% endif %}
+{% if any_struct_is_component %}
+#include <reflection/ComponentInfo.h>
+#include <ecs/Observer.h>
 #include <entt/entity/registry.hpp>
-
+{% endif %}
 {% import "macros/lua_user_type.jinja" as lua_user_type %}
 {% import "macros/component_utils.jinja" as component_utils %}
 namespace dibidab_struct_info_{{ input_name }}
 {
 {% for struct in structs %}{% if struct.generate_lua_user_type %}{{ lua_user_type.render(struct) }}{% endif %}{% endfor %}
-{% for struct in structs %}{{ component_utils.getDefaultJsonObject(struct) }}{% endfor %}
-
+{% for struct in structs %}{% if struct.any_exposed_to_json %}{{ component_utils.getDefaultJsonObject(struct) }}{% endif %}{% endfor %}
 {% for struct in structs %}
 {% if struct.is_component %}
 {{ component_utils.hasComponent(struct) }}
@@ -27,9 +28,10 @@ namespace dibidab_struct_info_{{ input_name }}
 
 {{ component_utils.createObserver(struct) }}
 
+{% if struct.any_exposed_to_json %}
 {{ component_utils.getJsonObject(struct) }}
 {{ component_utils.getJsonArray(struct) }}
-{{ component_utils.setFromJson(struct) }}
+{{ component_utils.setFromJson(struct) }}{% endif %}
 
 {{ component_utils.setFromLua(struct) }}
 {{ component_utils.fillLuaUtilsTable(struct) }}
@@ -47,9 +49,11 @@ dibidab::ComponentInfo COMPONENT_INFO_{{ struct.name }}
 
     {{ component_utils.createObserver_function_name(struct) }},
 
+    {% if struct.any_exposed_to_json %}
     {{ component_utils.getJsonObject_function_name(struct) }},
     {{ component_utils.getJsonArray_function_name(struct) }},
-    {{ component_utils.setFromJson_function_name(struct) }},
+    {{ component_utils.setFromJson_function_name(struct) }},{% else %}
+    nullptr, nullptr, nullptr,{% endif %}
 
     {{ component_utils.setFromLua_function_name(struct) }},
     {{ component_utils.fillLuaUtilsTable_function_name(struct) }},
@@ -63,10 +67,9 @@ dibidab::StructInfo STRUCT_INFO_{{ struct.name }}
         {% for variable in struct.variables %}{ "{{ variable.name }}", "{{ variable.type }}", {% if variable.lua_exposed %}true{% else %}false{% endif %}, {% if variable.json_exposed %}true{% else %}false{% endif %} },
         {% endfor %}
     },
-    {{ component_utils.getDefaultJsonObject_function_name(struct) }},
-    {% if struct.generate_lua_user_type %}&{{ lua_user_type.registerLuaUserTypeFunctionName(struct) }},{% else %}nullptr,{% endif %}
+    {% if struct.any_exposed_to_json %}{{ component_utils.getDefaultJsonObject_function_name(struct) }}{% else %}nullptr{% endif %},
+    {% if struct.generate_lua_user_type %}&{{ lua_user_type.registerLuaUserTypeFunctionName(struct) }}{% else %}nullptr{% endif %},
 };{% endfor %}
-
 }
 
 void {{ input_name }}_registerDibidabStructs()
