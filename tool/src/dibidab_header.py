@@ -148,7 +148,7 @@ def render(file_type_name):
         structs = struct_render_info,
         input_name = input_name,
         original_header_rel_path = os.path.relpath(input_path, output_path),
-        category_path = os.path.relpath(input_path.parent, os.path.commonpath([input_path, output_path])).split("/"),
+        category_path = os.path.relpath(input_path.parent, os.path.commonpath([input_path, output_path])).replace("\\", "/").split("/"),
         any_struct_exposed_to_json = any_struct_exposed_to_json,
         any_struct_exposed_to_lua = any_struct_exposed_to_lua,
         any_struct_is_component = any_struct_is_component
