@@ -3,7 +3,6 @@ from dataclasses import dataclass   # for @dataclass
 
 import cxxheaderparser.simple as simple_parser
 import cxxheaderparser.types
-from powerline.segments.vim.plugin.tagbar import currenttag
 
 import dibidab_jinja
 import sys
