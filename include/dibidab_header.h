@@ -17,8 +17,3 @@
  * Generate code for using this struct as a component.
  */
 #define dibidab_component
-
-/**
- * Generates reflection and lua binding code for an enum.
- */
-#define dibidab_enum(name)

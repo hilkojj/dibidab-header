@@ -1,0 +1,12 @@
+
+{% macro registerLuaEnumFunctionName(enum) %}registerLuaEnum_{{ enum.name }}{% endmacro %}
+
+{% macro render(enum) %}
+void {{ registerLuaEnumFunctionName(enum) }}(sol::state &luaState)
+{
+    luaState.new_enum(
+        "{{ enum.id_namespaceless }}",
+        {% for value in enum.vals %}"{{ value }}", {{ enum.id }}::{{ value }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    );
+}{% endmacro %}

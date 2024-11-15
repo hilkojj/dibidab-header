@@ -1,5 +1,8 @@
 {% if any_struct_exposed_to_json or any_struct_exposed_to_lua %}#include "{{ original_header_rel_path }}"{% endif %}
 #include <reflection/StructInfo.h>
+{% if enums|length > 0 %}
+#include <reflection/EnumInfo.h>
+{% endif %}
 {%if any_struct_exposed_to_json %}
 #include "registry.struct_json.h"
 #include <json.hpp>
@@ -16,6 +19,7 @@
 {% endif %}
 {% import "macros/lua_user_type.jinja" as lua_user_type %}
 {% import "macros/component_utils.jinja" as component_utils %}
+{% import "macros/lua_enum.jinja" as lua_enum %}
 namespace dibidab_struct_info_{{ input_name }}
 {
 {% for struct in structs %}{% if struct.generate_lua_user_type %}{{ lua_user_type.render(struct) }}{% endif %}{% endfor %}
@@ -70,6 +74,16 @@ dibidab::StructInfo STRUCT_INFO_{{ struct.name }}
     {% if struct.any_exposed_to_json %}{{ component_utils.getDefaultJsonObject_function_name(struct) }}{% else %}nullptr{% endif %},
     {% if struct.generate_lua_user_type %}&{{ lua_user_type.registerLuaUserTypeFunctionName(struct) }}{% else %}nullptr{% endif %},
 };{% endfor %}
+
+{% for enum in enums %}
+{{ lua_enum.render(enum) }}
+
+dibidab::EnumInfo ENUM_INFO_{{ enum.name }}
+{
+    "{{ enum.id }}",
+    { {% for value in enum.vals %}{ "{{ value }}", int({{ enum.id }}::{{ value }}) },{% endfor %} },
+    {{ lua_enum.registerLuaEnumFunctionName(enum) }}
+};{% endfor %}
 }
 
 void {{ input_name }}_registerDibidabStructs()
@@ -78,4 +92,6 @@ void {{ input_name }}_registerDibidabStructs()
     dibidab::registerStructInfo(dibidab_struct_info_{{ input_name }}::STRUCT_INFO_{{ struct.name }});
     {% if struct.is_component %}dibidab::registerComponentInfo(dibidab_struct_info_{{ input_name }}::COMPONENT_INFO_{{ struct.name }});{% endif %}
     {% endfor %}
+    {% for enum in enums %}
+    dibidab::registerEnumInfo(dibidab_struct_info_{{ input_name }}::ENUM_INFO_{{ enum.name }});{% endfor %}
 }

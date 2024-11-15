@@ -46,19 +46,19 @@ class NamespaceWrapper:
             it = it.parent
         return list
 
-def format_struct_id(struct: simple_parser.ClassScope, namespace: NamespaceWrapper | None):
+def format_id(typename: cxxheaderparser.types.PQName, namespace: NamespaceWrapper | None):
     id = ""
     if namespace != None:
         namespaces = namespace.get_id_chain_list()
         id += "::".join(namespaces)
         if len(namespaces) > 0:
             id += "::"
-    id += "::".join(seg.format() for seg in struct.class_decl.typename.segments)
+    id += "::".join(seg.format() for seg in typename.segments)
     return id
 
 def get_struct_render_info(struct: simple_parser.ClassScope, namespace: NamespaceWrapper):
     name = "__".join(seg.format() for seg in struct.class_decl.typename.segments)
-    id = format_struct_id(struct, namespace)
+    id = format_id(struct.class_decl.typename, namespace)
     variables = []
     json_variables = []
     is_component = False
@@ -127,7 +127,7 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
         # id is used as actual typename, including `namespace::`
         "id": id,
         # id, without `namespace::`
-        "id_namespaceless": format_struct_id(struct, None),
+        "id_namespaceless": format_id(struct.class_decl.typename, None),
         # namespaces leading to this type
         "namespaces": namespace.get_id_chain_list(),
         "is_component": is_component,
@@ -144,7 +144,19 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
     }
     return info
 
+def get_enum_render_info(enum: simple_parser.EnumDecl, namespace: NamespaceWrapper):
+    name = "__".join(seg.format() for seg in enum.typename.segments)
+    id = format_id(enum.typename, namespace)
+    info = {
+        "name": name,
+        "id": id,
+        "id_namespaceless": format_id(enum.typename, None),
+        "vals": [ value.name for value in enum.values ]
+    }
+    return info
+
 struct_render_info = []
+enum_render_info = []
 
 def loop_over_namespace(namespace: NamespaceWrapper):
     for child_name, child_space in namespace.current.namespaces.items():
@@ -153,6 +165,8 @@ def loop_over_namespace(namespace: NamespaceWrapper):
     for struct in namespace.current.classes:
         struct_render_info.append(get_struct_render_info(struct, namespace))
 
+    for enum in namespace.current.enums:
+        enum_render_info.append(get_enum_render_info(enum, namespace))
 
 loop_over_namespace(NamespaceWrapper(parsed_input.namespace, None))
 
@@ -168,6 +182,7 @@ def render(file_type_name):
 
     render_result = jinja_template.render(
         structs = struct_render_info,
+        enums = enum_render_info,
         input_name = input_name,
         original_header_rel_path = os.path.relpath(input_path, output_path),
         category_path = os.path.relpath(input_path.parent, os.path.commonpath([input_path, output_path])).replace("\\", "/").split("/"),
