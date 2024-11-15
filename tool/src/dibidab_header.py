@@ -19,7 +19,18 @@ output_path = pathlib.Path(sys.argv[2])
 if not output_path.exists():
     os.makedirs(output_path)
 
-parsed_input = simple_parser.parse_file(input_path)
+class CxxVisitor(simple_parser.SimpleCxxVisitor):
+    def __init__(self):
+        super().__init__()
+
+    def on_class_field(self, state: cxxheaderparser.simple.SClassBlockState, f: cxxheaderparser.types.Field) -> None:
+        f.line_number = state.location.lineno
+        super().on_class_field(state, f)
+
+visitor = CxxVisitor()
+parser = simple_parser.CxxParser(os.fsdecode(input_path), None, visitor)
+parser.parse()
+parsed_input = visitor.data
 
 @dataclass
 class NamespaceWrapper:
@@ -49,18 +60,23 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
     name = "__".join(seg.format() for seg in struct.class_decl.typename.segments)
     id = format_struct_id(struct, namespace)
     variables = []
+    json_variables = []
     is_component = False
     is_empty = True
     json_method = "array"
 
     json_exposing = False
     lua_exposing = False
+    prev_expose_line = 0
 
     for field in struct.fields:
         if isinstance(field.type, cxxheaderparser.types.Type):
             typename_str = field.type.typename.format()
             # Check if field is a recognized macro from <dibidab_header.h>:
             if typename_str == "dibidab_expose":
+                if field.line_number != prev_expose_line:
+                    prev_expose_line = field.line_number
+                    json_exposing = lua_exposing = False
                 if field.name != None:
                     exposing_to = field.name.format().lower()
                     if exposing_to == "json":
@@ -94,12 +110,15 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
         if field.access != "public" and (json_exposing or lua_exposing):
             raise SystemExit("Trying to expose a variable without public visibility: " + id + "::" + field.name.format())
 
-        variables.append({
+        var = {
             "name": field.name.format(),
             "type": field.type.typename.format(),
             "json_exposed": json_exposing,
             "lua_exposed": lua_exposing
-        })
+        }
+        variables.append(var)
+        if json_exposing:
+            json_variables.append(var)
 
     any_exposed_to_lua = any([var["lua_exposed"] for var in variables])
     info = {
@@ -118,7 +137,10 @@ def get_struct_render_info(struct: simple_parser.ClassScope, namespace: Namespac
         "any_exposed_to_json": any([var["json_exposed"] for var in variables]),
         "generate_lua_user_type": any_exposed_to_lua or is_component,
         # exposed variables:
-        "variables": variables
+        "variables": variables,
+        # copy of variables, but only with variables that are exposed to json.
+        # This allows us to loop over the json vars and use `loop.index0` in jinja without skipping indices.
+        "json_variables": json_variables
     }
     return info
 

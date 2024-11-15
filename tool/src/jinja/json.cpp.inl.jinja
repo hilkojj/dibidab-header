@@ -8,21 +8,21 @@
 
 void to_json_object(json &json, const {{ struct.id }} &value)
 {
-    json = { {% for var in struct.variables %}
+    json = { {% for var in struct.json_variables %}
         { "{{ var.name }}", value.{{ var.name }} },{% endfor %}
     };
 }
 
 void to_json_array(json &json, const {{ struct.id }} &value)
 {
-    json = { {% for var in struct.variables %}
+    json = { {% for var in struct.json_variables %}
         value.{{ var.name }},{% endfor %}
     };
 }
 
 void from_json_object(const json &json, {{ struct.id }} &value)
 {
-{% for var in struct.variables %}
+{% for var in struct.json_variables %}
     {% if loop.index0 == 0 %}auto {% endif %}it = json.find("{{ var.name }}");
     if (it != json.end())
     {
@@ -34,7 +34,7 @@ void from_json_object(const json &json, {{ struct.id }} &value)
 void from_json_array(const json &json, {{ struct.id }} &value)
 {
     const size_t json_size = json.size();
-{% for var in struct.variables %}
+{% for var in struct.json_variables %}
     if ({{ loop.index0 }} < json_size)
     {
         value.{{ var.name }} = json.at({{ loop.index0 }}){% if var.type != "json" %}.get<{{ var.type }}>(){% endif %};
