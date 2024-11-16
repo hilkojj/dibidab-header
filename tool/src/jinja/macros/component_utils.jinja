@@ -82,6 +82,22 @@ void {{ setFromJson_function_name(struct) }}(const json &objectOrArray, const en
 
 
 
+{% macro patchFromJson_function_name(struct) %}patchFromJson_{{ struct.name }}{% endmacro %}
+
+{% macro patchFromJson(struct) %}
+void {{ patchFromJson_function_name(struct) }}(const json &objectOrArray, const entt::entity e, entt::registry &reg)
+{
+    {{ struct.id }} value;
+    if (const {{ struct.id }} *existing = reg.try_get<{{ struct.id }}>(e))
+    {
+        value = *existing;
+    }
+    from_json(objectOrArray, value);
+    reg.assign_or_replace<{{ struct.id }}>(e, value);
+}{% endmacro %}
+
+
+
 {% macro setFromLua_function_name(struct) %}setFromLua_{{ struct.name }}{% endmacro %}
 
 {% macro setFromLua(struct) %}

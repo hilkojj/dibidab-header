@@ -35,6 +35,7 @@ namespace dibidab_struct_info_{{ input_name }}
 {% if struct.any_exposed_to_json %}
 {{ component_utils.getJsonObject(struct) }}
 {{ component_utils.getJsonArray(struct) }}
+{{ component_utils.patchFromJson(struct) }}
 {{ component_utils.setFromJson(struct) }}{% endif %}
 
 {{ component_utils.setFromLua(struct) }}
@@ -56,8 +57,9 @@ dibidab::ComponentInfo COMPONENT_INFO_{{ struct.name }}
     {% if struct.any_exposed_to_json %}
     {{ component_utils.getJsonObject_function_name(struct) }},
     {{ component_utils.getJsonArray_function_name(struct) }},
-    {{ component_utils.setFromJson_function_name(struct) }},{% else %}
-    nullptr, nullptr, nullptr,{% endif %}
+    {{ component_utils.setFromJson_function_name(struct) }},
+    {{ component_utils.patchFromJson_function_name(struct) }},{% else %}
+    nullptr, nullptr, nullptr, nullptr,{% endif %}
 
     {{ component_utils.setFromLua_function_name(struct) }},
     {{ component_utils.fillLuaUtilsTable_function_name(struct) }},
