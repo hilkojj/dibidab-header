@@ -1,4 +1,4 @@
-{% if any_struct_exposed_to_json or any_struct_exposed_to_lua %}#include "{{ original_header_rel_path }}"{% endif %}
+{% if any_struct_exposed_to_json or any_struct_exposed_to_lua or enums|length > 0%}#include "{{ original_header_rel_path }}"{% endif %}
 #include <reflection/StructInfo.h>
 {% if enums|length > 0 %}
 #include <reflection/EnumInfo.h>
@@ -7,7 +7,7 @@
 #include "registry.struct_json.h"
 #include <json.hpp>
 {% endif %}
-{% if any_struct_exposed_to_lua %}
+{% if any_struct_exposed_to_lua or enums|length > 0 %}
 #include <sol/sol.hpp>
 #include <lua/lua_converters.h>
 #include <entt/core/hashed_string.hpp>
